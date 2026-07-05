@@ -1,10 +1,11 @@
 import math
 from datetime import datetime
-
+from models.route import Route  
 
 class RouteAnalyzer:
-    def __init__(self, points):
-        self.points = points
+    def __init__(self, route: Route):  
+        self.route = route
+        self.points = route.points
 
     def haversine_distance(self, p1, p2):
         """Berechnet die Distanz zwischen zwei Punkten in Metern."""
@@ -36,10 +37,7 @@ class RouteAnalyzer:
             
             dist = self.haversine_distance(p1, p2) # in Metern
             
-            t1 = datetime.fromisoformat(p1.time.replace('Z', '+00:00'))
-            t2 = datetime.fromisoformat(p2.time.replace('Z', '+00:00'))
-            
-            time_diff_seconds = (t2 - t1).total_seconds()
+            time_diff_seconds = (p2.time - p1.time).total_seconds()
             
             if time_diff_seconds > 0:
                 speed_mps = dist / time_diff_seconds # Meter pro Sekunde
@@ -90,10 +88,7 @@ class RouteAnalyzer:
             p1 = self.points[i+1]
             p2 = self.points[i+2]
             
-            t1 = datetime.fromisoformat(p1.time.replace('Z', '+00:00'))
-            t2 = datetime.fromisoformat(p2.time.replace('Z', '+00:00'))
-            
-            dt = (t2 - t1).total_seconds()
+            dt = (p2.time - p1.time).total_seconds()
             
             if dt > 0:
                 accel = (v2_mps - v1_mps) / dt
@@ -138,17 +133,25 @@ class RouteAnalyzer:
             
         return elevation_data
     def total_ascent(self) -> float:
-        """
-        Berechnet die gesamten Höhenmeter im Aufstieg (kumulierter positiver Höhenunterschied).
-        """
+        """Berechnet die gesamten Höhenmeter im Aufstieg (kumulierter positiver Höhenunterschied)."""
         elevation_data = self.get_elevation_data()
-        total_ascent = sum(section['dh'] for section in elevation_data if section['dh'] > 0)
-        return float(total_ascent)
+        return float(sum(section['dh'] for section in elevation_data if section['dh'] > 0))
+
+    def total_descent(self) -> float:
+        """Berechnet die gesamten Höhenmeter im Abstieg (kumulierter negativer Höhenunterschied)."""
+        elevation_data = self.get_elevation_data()
+        # Wir nehmen den Absolutwert (abs), damit der Wert positiv ausgegeben wird
+        return float(sum(abs(section['dh']) for section in elevation_data if section['dh'] < 0))
+
+    def get_total_duration_seconds(self) -> float:
+        """Berechnet die Gesamtfahrzeit in Sekunden basierend auf den Zeitstempeln der Punkte."""
+        if len(self.points) < 2:
+            return 0.0
+        duration = self.points[-1].time - self.points[0].time
+        return float(duration.total_seconds())
 
     def get_summary(self) -> dict:
-        """
-        Gibt eine zusammenfassende Statistik der gesamten Route zurück.
-        """
+        """Gibt eine vollständige zusammenfassende Statistik der Route zurück."""
         speeds = self.get_speeds()
         accelerations = self.get_accelerations()
         elevation_data = self.get_elevation_data()
@@ -156,14 +159,15 @@ class RouteAnalyzer:
         avg_speed = sum(speeds) / len(speeds) if speeds else 0.0
         max_speed = max(speeds) if speeds else 0.0
         max_accel = max(accelerations) if accelerations else 0.0
-        
         max_gradient = max([sec['gradient_percent'] for sec in elevation_data]) if elevation_data else 0.0
         
         return {
             'total_distance_m': self.total_distance(),
+            'total_duration_s': self.get_total_duration_seconds(),
             'average_speed_kmh': avg_speed,
             'max_speed_kmh': max_speed,
             'max_acceleration_mps2': max_accel,
             'total_ascent_m': self.total_ascent(),
+            'total_descent_m': self.total_descent(),
             'max_gradient_percent': max_gradient
         }
