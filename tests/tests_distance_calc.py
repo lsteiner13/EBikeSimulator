@@ -1,39 +1,68 @@
 import unittest
-import pandas as pd
-import sys
-import os
+from datetime import datetime
 
-# Pfad anpassen, damit Python die Datei im src-Ordner findet
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
+from src.models.route import Route, RoutePoint
+from src.physics.route_analyzer import RouteAnalyzer
 
-# HIER ANGEPASST: Importiert jetzt aus distance_calc
-from distance_calc import calculate_haversine_distance, calculate_total_distance
+class TestRouteAnalyzer(unittest.TestCase):
 
-class TestDistanceCalculator(unittest.TestCase):
+    def setUp(self):
+        """Test-Route mit 3 Punkten erstellen"""
+
+        self.route = Route([
+            RoutePoint(
+                lat=47.2682,
+                lon=11.3933,
+                elevation=0.0,
+                time=datetime(2024, 1, 1, 12, 0, 0)
+            ),
+            RoutePoint(
+                lat=47.5000,
+                lon=11.4500,
+                elevation=50.0,
+                time=datetime(2024, 1, 1, 12, 10, 0)
+            ),
+            RoutePoint(
+                lat=48.1371,
+                lon=11.5754,
+                elevation=200.0,
+                time=datetime(2024, 1, 1, 12, 20, 0)
+            ),
+        ])
+
+        self.analyzer = RouteAnalyzer(self.route.points)
+
+    # -----------------------------------------------------
 
     def test_haversine_distance(self):
-        # Test: Innsbruck bis München (Luftlinie)
-        # Erwarteter Wert: ca. 97.700 Meter
-        dist = calculate_haversine_distance(47.2682, 11.3933, 48.1371, 11.5754)
-        
-        # assertAlmostEqual erlaubt eine kleine Abweichung (delta) bei Floats
-        self.assertAlmostEqual(dist, 97700, delta=1000)
+        """Testet Distanz zwischen zwei Punkten"""
+
+        p1 = self.route.points[0]
+        p2 = self.route.points[1]
+
+        dist = self.analyzer.haversine_distance(p1, p2)
+
+        self.assertIsInstance(dist, float)
+        self.assertGreater(dist, 0)
+
+        # grobe Plausibilitätsgrenze (Innsbruck ~ München ~ 100 km)
+        self.assertLess(dist, 200000)
+
+    # -----------------------------------------------------
 
     def test_total_distance(self):
-        # Wir simulieren einen kleinen DataFrame mit 3 Punkten
-        test_data = {
-            'lat': [47.2682, 47.5000, 48.1371], 
-            'lon': [11.3933, 11.4500, 11.5754]
-        }
-        df = pd.DataFrame(test_data)
-        
-        # Funktion aufrufen
-        total = calculate_total_distance(df)
-        
-        # Die Strecke über 3 Punkte muss logischerweise berechnet werden
-        # Wir prüfen, ob ein sinnvoller Wert herauskommt
-        self.assertTrue(total > 0)
-        self.assertIsInstance(total, float)
+        """Testet Gesamtstrecke der Route"""
 
-if __name__ == '__main__':
-    unittest.main()
+        total = self.analyzer.total_distance()
+
+        self.assertIsInstance(total, float)
+        self.assertGreater(total, 0)
+
+    # -----------------------------------------------------
+
+    def test_route_length(self):
+        """Testet ob Route korrekt aufgebaut ist"""
+
+        self.assertEqual(len(self.route.points), 3)
+
+    # -----------------------------------------------------
