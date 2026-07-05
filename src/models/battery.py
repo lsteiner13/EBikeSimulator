@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from ocv_curves import OCV_CURVES
+from models.ocv_curves import OCV_CURVES
 from scipy.interpolate import interp1d
 
 class BatteryBase(ABC):
