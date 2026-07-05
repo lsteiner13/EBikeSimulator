@@ -1,6 +1,6 @@
 import math
 from datetime import datetime
-# from src.models.route import RoutePoint # (Falls dein Kollege das hier stehen hatte, lass es drin, Python braucht es hier aber nicht zwingend für die Logik)
+
 
 class RouteAnalyzer:
     def __init__(self, points):
@@ -36,8 +36,6 @@ class RouteAnalyzer:
             
             dist = self.haversine_distance(p1, p2) # in Metern
             
-            # Zeitstempel auslesen und Differenz in Sekunden berechnen
-            # .replace('Z', '+00:00') stellt sicher, dass das Format korrekt gelesen wird
             t1 = datetime.fromisoformat(p1.time.replace('Z', '+00:00'))
             t2 = datetime.fromisoformat(p2.time.replace('Z', '+00:00'))
             
@@ -75,3 +73,67 @@ class RouteAnalyzer:
         if not speeds:
             return 0.0
         return max(speeds)
+    
+    def get_accelerations(self):
+        """
+        Berechnet die Beschleunigung (in m/s²) zwischen den Streckenabschnitten.
+        Benötigt mindestens 3 GPS-Punkte (2 Geschwindigkeits-Intervalle).
+        """
+        speeds_kmh = self.get_speeds()
+        accelerations = []
+        
+        for i in range(len(speeds_kmh) - 1):
+            # Umrechnung von km/h in m/s
+            v1_mps = speeds_kmh[i] / 3.6
+            v2_mps = speeds_kmh[i+1] / 3.6
+            
+            p1 = self.points[i+1]
+            p2 = self.points[i+2]
+            
+            t1 = datetime.fromisoformat(p1.time.replace('Z', '+00:00'))
+            t2 = datetime.fromisoformat(p2.time.replace('Z', '+00:00'))
+            
+            dt = (t2 - t1).total_seconds()
+            
+            if dt > 0:
+                accel = (v2_mps - v1_mps) / dt
+            else:
+                accel = 0.0
+                
+            accelerations.append(accel)
+            
+        return accelerations
+
+    def max_acceleration(self):
+        """Ermittelt die maximale positive Beschleunigung in m/s²."""
+        accels = self.get_accelerations()
+        if not accels:
+            return 0.0
+        return max(accels)
+    def get_elevation_data(self):
+        """
+        Berechnet den Höhenunterschied, die Steigung in % und den Steigungswinkel.
+        Gibt eine Liste von Dictionaries mit den Werten für jeden Streckenabschnitt zurück.
+        """
+        elevation_data = []
+        for i in range(len(self.points) - 1):
+            p1 = self.points[i]
+            p2 = self.points[i+1]
+            
+            dh = p2.elevation - p1.elevation
+            dx = self.haversine_distance(p1, p2)
+            
+            if dx > 0:
+                grad_percent = (dh / dx) * 100
+                angle_deg = math.degrees(math.atan2(dh, dx))
+            else:
+                grad_percent = 0.0
+                angle_deg = 0.0
+                
+            elevation_data.append({
+                'dh': dh,
+                'gradient_percent': grad_percent,
+                'angle_degrees': angle_deg
+            })
+            
+        return elevation_data
