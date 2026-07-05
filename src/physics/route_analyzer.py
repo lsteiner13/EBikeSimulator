@@ -137,3 +137,33 @@ class RouteAnalyzer:
             })
             
         return elevation_data
+    def total_ascent(self) -> float:
+        """
+        Berechnet die gesamten Höhenmeter im Aufstieg (kumulierter positiver Höhenunterschied).
+        """
+        elevation_data = self.get_elevation_data()
+        total_ascent = sum(section['dh'] for section in elevation_data if section['dh'] > 0)
+        return float(total_ascent)
+
+    def get_summary(self) -> dict:
+        """
+        Gibt eine zusammenfassende Statistik der gesamten Route zurück.
+        """
+        speeds = self.get_speeds()
+        accelerations = self.get_accelerations()
+        elevation_data = self.get_elevation_data()
+        
+        avg_speed = sum(speeds) / len(speeds) if speeds else 0.0
+        max_speed = max(speeds) if speeds else 0.0
+        max_accel = max(accelerations) if accelerations else 0.0
+        
+        max_gradient = max([sec['gradient_percent'] for sec in elevation_data]) if elevation_data else 0.0
+        
+        return {
+            'total_distance_m': self.total_distance(),
+            'average_speed_kmh': avg_speed,
+            'max_speed_kmh': max_speed,
+            'max_acceleration_mps2': max_accel,
+            'total_ascent_m': self.total_ascent(),
+            'max_gradient_percent': max_gradient
+        }

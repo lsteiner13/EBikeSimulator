@@ -42,6 +42,14 @@ class TestRouteAnalyzer(unittest.TestCase):
         self.assertIn('angle_degrees', data[0])
         
         self.assertEqual(data[0]['dh'], -55.0)
+    def test_summary_and_ascent(self):
+        # Da unsere Testpunkte nur bergab gehen -> 0m Aufsteig erwartet
+        self.assertEqual(self.analyzer.total_ascent(), 0.0)
+        
+        summary = self.analyzer.get_summary()
+        self.assertIn('total_distance_m', summary)
+        self.assertIn('average_speed_kmh', summary)
+        self.assertTrue(summary['max_speed_kmh'] > 0)
 
 if __name__ == '__main__':
     unittest.main()
