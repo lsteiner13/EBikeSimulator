@@ -27,27 +27,27 @@ class RouteAnalyzer:
         for i in range(len(self.points) - 1):
             total += self.haversine_distance(self.points[i], self.points[i+1])
         return total
-
+    
     def get_speeds(self):
-        """Berechnet die Geschwindigkeit (in km/h) für jeden Streckenabschnitt."""
-        speeds = []
+        """Berechnet die Geschwindigkeiten (in km/h) zwischen den Wegpunkten."""
+        speeds_kmh = []
         for i in range(len(self.points) - 1):
             p1 = self.points[i]
             p2 = self.points[i+1]
             
-            dist = self.haversine_distance(p1, p2) # in Metern
+            # Distanz in Metern (Haversine)
+            dist_m = self.haversine_distance(p1, p2)
             
-            time_diff_seconds = (p2.time - p1.time).total_seconds()
+            # Zeitdifferenz in Sekunden
+            dt_s = (p2.time - p1.time).total_seconds()
             
-            if time_diff_seconds > 0:
-                speed_mps = dist / time_diff_seconds # Meter pro Sekunde
-                speed_kmh = speed_mps * 3.6          # Umrechnung in km/h
+            if dt_s > 0:
+                speed_ms = dist_m / dt_s
+                speeds_kmh.append(speed_ms * 3.6)
             else:
-                speed_kmh = 0.0
+                speeds_kmh.append(0.0) # Fallback, falls Zeitdifferenz = 0
                 
-            speeds.append(speed_kmh)
-            
-        return speeds
+        return speeds_kmh
 
     def average_speed(self):
         """Berechnet die Durchschnittsgeschwindigkeit der gesamten Route in km/h."""
