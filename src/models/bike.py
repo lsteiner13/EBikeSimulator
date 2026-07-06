@@ -9,6 +9,15 @@ class EBikeConfig:
     wheel_diameter: float        # in inch
     c_w_a: float               # Luftwiderstandsfläche
 
+@dataclass
+class StepResult:
+    torque: float
+    omega: float
+    power: float
+    current: float
+    voltage: float
+    soc: float
+
 
 class EBike:
     """
@@ -86,10 +95,11 @@ class EBike:
         # Akku entladen
         self.battery.apply_current(current, dt)
 
-        return {
-            "torque": torque,
-            "omega": omega,
-            "power": mech_power,
-            "current": current,
-            "soc": self.battery.soc,
-        }
+        return StepResult(
+            torque=torque,
+            omega=omega,
+            power=mech_power,
+            current=current,
+            voltage=self.battery.voltage(current),
+            soc=self.battery.soc,
+)
