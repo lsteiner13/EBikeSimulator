@@ -1,5 +1,5 @@
 import pandas as pd
-from models.route import Route, RoutePoint
+from src.models.route import Route, RoutePoint
 
 
 def load_csv(path: str) -> Route:

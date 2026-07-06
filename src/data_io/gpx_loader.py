@@ -1,5 +1,5 @@
 import gpxpy
-from models.route import Route, RoutePoint
+from src.models.route import Route, RoutePoint
 
 
 def load_gpx(path: str) -> Route:

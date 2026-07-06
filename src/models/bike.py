@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
-from models.motor import Motor
-from models.battery import BatteryBase
+from src.models.motor import Motor
+from src.models.battery import BatteryBase
 
 @dataclass
 class EBikeConfig:
