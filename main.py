@@ -31,7 +31,7 @@ except Exception as e:
     logging.critical(f"Fehler beim Laden der CSV-Datei: {e}")
     sys.exit(1)
 
-# --- 2. Exception Handling & Sanity Checks bei der Konfiguration ---
+# --- 2. Exception Handling & PLausabilitätsprüfung bei der Konfiguration ---
 try:
     logging.info("Initialisiere E-Bike Komponenten...")
     
