@@ -1,6 +1,6 @@
 import math
 from datetime import datetime
-from models.route import Route  
+from src.models.route import Route  
 
 class RouteAnalyzer:
     def __init__(self, route: Route):  
@@ -105,6 +105,7 @@ class RouteAnalyzer:
         if not accels:
             return 0.0
         return max(accels)
+    
     def get_elevation_data(self):
         """
         Berechnet den Höhenunterschied, die Steigung in % und den Steigungswinkel.
@@ -132,6 +133,7 @@ class RouteAnalyzer:
             })
             
         return elevation_data
+    
     def total_ascent(self) -> float:
         """Berechnet die gesamten Höhenmeter im Aufstieg (kumulierter positiver Höhenunterschied)."""
         elevation_data = self.get_elevation_data()
