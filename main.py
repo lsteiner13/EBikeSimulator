@@ -1,4 +1,5 @@
 from src.data_io.csv_loader import load_csv
+from src.data_io.gpx_loader import load_gpx
 from pathlib import Path
 from src.models.bike import EBike, EBikeConfig
 from src.models.motor import Motor
@@ -6,6 +7,7 @@ from src.models.battery import LiPo
 from src.models.battery import NMC
 from src.physics.route_analyzer import RouteAnalyzer
 from src.simulator.simulator import Simulator
+from tools.plot_gps_data import FoliumMap
 
 # aktuelles File: .../src/main.py
 # 1 pfad nach oben
@@ -37,3 +39,5 @@ simulator = Simulator(route)
 #simulate with ebike lipo and nmc
 result_lipo = simulator.run(ebike_lipo)
 result_nmc = simulator.run(ebike_nmc)
+
+FoliumMap.plot_route(route)
