@@ -45,7 +45,7 @@ try:
     lipo = LiPo(capacity_cell_Ah=10, s_parallel=4, initial_soc=1)
     nmc = NMC(capacity_cell_Ah=10, s_parallel=4, initial_soc=1)
     
-    ebike_config = EBikeConfig(mass=80, wheel_diameter=27, c_w_a=0.5626)
+    ebike_config = EBikeConfig(mass=80, wheel_diameter=27, c_w_a=0.5626, rolling_resistance=0.006)
     
     # init ebike versions
     ebike_lipo = EBike(motor=motor, battery=lipo, config=ebike_config)
@@ -78,10 +78,6 @@ except Exception as e:
     # Fängt Abstürze ab, falls in der ausgelagerten Simulator-Klasse etwas schiefgeht
     logging.critical(f"Kritischer Fehler während der Simulation: {e}")
     sys.exit(1)
-
-#simulate with ebike lipo and nmc
-result_lipo = simulator.run(ebike_lipo)
-result_nmc = simulator.run(ebike_nmc)
 
 FoliumMap.plot_route(route)
 Plotter.plot_speed(result_lipo.time, result_lipo.speed)

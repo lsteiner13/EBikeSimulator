@@ -3,11 +3,14 @@ from dataclasses import dataclass
 from src.models.motor import Motor
 from src.models.battery import BatteryBase
 
+import math
+
 @dataclass
 class EBikeConfig:
     mass: float
     wheel_diameter: float
     c_w_a: float
+    rolling_resistance: float
 
     def __post_init__(self):
         # Plausibilitätsprüfungen direkt nach der Initialisierung
@@ -19,6 +22,10 @@ class EBikeConfig:
         
         if self.c_w_a < 0:
             raise ValueError(f"Ungültiger Luftwiderstandsbeiwert: {self.c_w_a}. Darf nicht negativ sein.")
+        
+        if self.rolling_resistance <= 0:
+            raise ValueError(f"Ungültiger Rolwiderstand: {self.rolling_resistance}. Darf nicht negativ sein.")
+
 @dataclass
 class StepResult:
     torque: float
@@ -62,7 +69,14 @@ class EBike:
         wheel diameter in inch (gets converted to meter)"""
         conversion_factor_inch_to_m = 0.0254
         return velocity / (self.config.wheel_diameter/2 * conversion_factor_inch_to_m)
-
+    
+    def rolling_resistance(self, slope: float = 0.0) -> float:
+        #formel für reibung = rollreibung * m * g * cos(alpha)
+        #aus steigung winkel berechnen -> alpha = atan(steigung) 
+        alpha = math.atan(slope)
+        
+        return self.config.rolling_resistance * self.config.mass * 9.81 * math.cos(alpha)
+        
     def required_power(self, velocity: float, slope: float):
         """
         Total power on wheel
@@ -70,8 +84,9 @@ class EBike:
         """
         F_air = self.air_drag(velocity)
         F_slope = self.slope_force(slope)
+        F_rolling_resistance = self.rolling_resistance(slope)
 
-        total_force = F_air + F_slope
+        total_force = F_air + F_slope + F_rolling_resistance
 
         return total_force * velocity
 
@@ -81,9 +96,11 @@ class EBike:
         """
         F_air = self.air_drag(velocity)
         F_slope = self.slope_force(slope)
+        F_rolling_resistance = self.rolling_resistance(slope)
+ 
         conversion_factor_inch_to_m = 0.0254
 
-        total_force = F_air + F_slope
+        total_force = F_air + F_slope + F_rolling_resistance
 
         return total_force * self.config.wheel_diameter/2 * conversion_factor_inch_to_m
 
