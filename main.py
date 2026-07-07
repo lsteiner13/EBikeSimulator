@@ -6,6 +6,7 @@ from src.models.battery import LiPo
 from src.models.battery import NMC
 from src.physics.route_analyzer import RouteAnalyzer
 from src.simulator.simulator import Simulator
+from tools.plotter import Plotter
 
 # aktuelles File: .../src/main.py
 # 1 pfad nach oben
@@ -37,3 +38,7 @@ simulator = Simulator(route)
 #simulate with ebike lipo and nmc
 result_lipo = simulator.run(ebike_lipo)
 result_nmc = simulator.run(ebike_nmc)
+
+Plotter.plot_speed(result_lipo.time, result_lipo.speed)
+Plotter.plot_power(result_lipo.time, result_lipo.power)
+Plotter.plot_soc(result_lipo.time, result_lipo.soc)
