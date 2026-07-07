@@ -4,17 +4,20 @@ import os
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 
-from physics.route_analyzer import RouteAnalyzer
-from models.route import RoutePoint
+from src.physics.route_analyzer import RouteAnalyzer
+from src.models.route import RoutePoint, Route
 
 class TestRouteAnalyzer(unittest.TestCase):
 
     def setUp(self):
-        # 3 Punkte für Tests (Innsbruck, München, und ein dritter fiktiver Punkt)
-        self.p1 = RoutePoint(lat=47.2682, lon=11.3933, elevation=574, time="2026-07-05T12:00:00Z")
-        self.p2 = RoutePoint(lat=48.1371, lon=11.5754, elevation=519, time="2026-07-05T13:00:00Z")
-        self.p3 = RoutePoint(lat=48.2000, lon=11.6000, elevation=500, time="2026-07-05T13:30:00Z")
-        self.analyzer = RouteAnalyzer([self.p1, self.p2, self.p3])
+        from datetime import datetime
+        
+        self.p1 = RoutePoint(lat=47.2682, lon=11.3933, elevation=574, time=datetime.fromisoformat("2026-07-05T12:00:00"))
+        self.p2 = RoutePoint(lat=48.1371, lon=11.5754, elevation=519, time=datetime.fromisoformat("2026-07-05T13:00:00"))
+        self.p3 = RoutePoint(lat=48.2000, lon=11.6000, elevation=500, time=datetime.fromisoformat("2026-07-05T13:30:00"))
+        
+        test_route = Route([self.p1, self.p2, self.p3])
+        self.analyzer = RouteAnalyzer(test_route)
 
     def test_total_distance(self):
         total_dist = self.analyzer.total_distance()
