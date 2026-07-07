@@ -1,7 +1,6 @@
 import logging
 import sys
-from src.data_io.csv_loader import load_csv
-from src.data_io.gpx_loader import load_gpx
+from src.data_io.route_loader import load_route_file
 from pathlib import Path
 from src.models.bike import EBike, EBikeConfig
 from src.models.motor import Motor
@@ -27,11 +26,11 @@ if not data_path.exists():
 
 # --- 1. Exception Handling beim Laden der Daten ---
 try:
-    logging.info("Lade Route aus CSV...")
-    route = load_csv(data_path)
+    logging.info("Lade Route aus Datei...")
+    route = load_route_file(data_path)
     logging.info(f"Route erfolgreich geladen.")
 except Exception as e:
-    logging.critical(f"Fehler beim Laden der CSV-Datei: {e}")
+    logging.critical(f"Fehler beim Laden der Datei: {e}")
     sys.exit(1)
 
 # --- 2. Exception Handling & PLausabilitätsprüfung bei der Konfiguration ---
@@ -79,9 +78,12 @@ except Exception as e:
     logging.critical(f"Kritischer Fehler während der Simulation: {e}")
     sys.exit(1)
 
-FoliumMap.plot_route(route)
-Plotter.plot_speed(result_lipo.time, result_lipo.speed)
-Plotter.plot_power(result_lipo.time, result_lipo.power)
+
+
+#FoliumMap.plot_route(route)
+
+#Plotter.plot_speed(result_lipo.time, result_lipo.speed)
+#Plotter.plot_power(result_lipo.time, result_lipo.power)
 Plotter.plot_soc(result_lipo.time, result_lipo.soc)
 
 logging.info("Alle Prozesse fehlerfrei beendet.")

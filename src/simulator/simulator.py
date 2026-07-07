@@ -37,13 +37,16 @@ class Simulator:
 
             speed = speeds[i] / 3.6
             slope = elevation[i]["gradient_percent"] / 100.0
+            bike_heading = self.route.points[i].heading
+            wind_direction = self.route.points[i].wind_direction
+            wind_speed = self.route.points[i].wind_speed
 
             dt = (
                 self.route.points[i + 1].time
                 - self.route.points[i].time
             ).total_seconds()
 
-            state = bike.step(speed, slope, dt)
+            state = bike.step(speed, slope, dt, bike_heading, wind_direction, wind_speed)
 
             result.time.append(self.route.points[i].time)
 

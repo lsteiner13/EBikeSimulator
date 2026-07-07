@@ -7,6 +7,12 @@ class RoutePoint:
     lon: float
     elevation: float
     time: datetime
+    
+    heading: float = None
+    temperature: float = None
+    wind_speed: float = None
+    wind_direction: float = None
+    
 
 class Route:
     def __init__(self, points: list[RoutePoint]):

@@ -1,4 +1,5 @@
 import gpxpy
+from datetime import timezone
 from src.models.route import Route, RoutePoint
 
 
@@ -16,7 +17,7 @@ def load_gpx(path: str) -> Route:
                         lat=p.latitude,
                         lon=p.longitude,
                         elevation=p.elevation,
-                        time=p.time
+                        time=p.time.astimezone(timezone.utc)
                     )
                 )
 

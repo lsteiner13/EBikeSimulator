@@ -7,6 +7,9 @@ class RouteAnalyzer:
         self.route = route
         self.points = route.points
 
+        #calculate headings
+        self.calculate_headings()
+
     def haversine_distance(self, p1, p2):
         """Berechnet die Distanz zwischen zwei Punkten in Metern."""
         R = 6371000.0
@@ -173,3 +176,53 @@ class RouteAnalyzer:
             'total_descent_m': self.total_descent(),
             'max_gradient_percent': max_gradient
         }
+    
+    @staticmethod
+    def calculate_heading(p1, p2):
+        """
+        Berechnet Fahrtrichtung zwischen zwei GPS Punkten.
+        Ergebnis in Grad:
+        0 = Nord
+        90 = Ost
+        180 = Süd
+        270 = West
+        """
+
+        lat1 = math.radians(p1.lat)
+        lat2 = math.radians(p2.lat)
+
+        delta_lon = math.radians(
+            p2.lon - p1.lon
+        )
+
+        x = math.sin(delta_lon) * math.cos(lat2)
+
+        y = (
+            math.cos(lat1) * math.sin(lat2)
+            -
+            math.sin(lat1)
+            * math.cos(lat2)
+            * math.cos(delta_lon)
+        )
+
+        heading = math.atan2(x, y)
+
+        heading = math.degrees(heading)
+
+        return (heading + 360) % 360
+
+    def calculate_headings(self):
+
+        points = self.route.points
+
+        for i in range(len(points)-1):
+
+            points[i].heading = (
+                self.calculate_heading(
+                    points[i],
+                    points[i+1]
+                )
+            )
+
+        # letzter Punkt übernimmt Richtung vom vorherige
+        points[-1].heading = points[-2].heading

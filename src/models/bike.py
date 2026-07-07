@@ -47,15 +47,33 @@ class EBike:
         self.battery = battery
         self.config = config
 
-    def air_drag(self, velocity: float):
+    def air_drag(self, velocity: float, wind_speed: float) -> float:
         """formel
         Fw = 1/2 * luftdichte * cw * A * v²
         c_w_a -> cw * A
         nehme standart wert für luftdichte
-        luftdichte auf meeres höhe bei 15° ~ 1,225kg / m³"""
+        luftdichte auf meeres höhe bei 15° ~ 1,225kg / m³
+        berücksichtige wind -> berechne relative geschwindigkeit
+        wind_speed wird bereits korrekt übergeben 
+        + -> rückenwind
+        - -> gegenwind"""
         air_density = 1.225
+        rel_speed = velocity - wind_speed
 
-        return 0.5 * air_density * self.config.c_w_a * velocity**2
+        return 0.5 * air_density * self.config.c_w_a * rel_speed**2
+    
+    def wind_component(self, bike_heading, wind_direction, wind_speed):
+        """
+        Gibt Windkomponente in Fahrtrichtung zurück.
+        Positiv = Rückenwind
+        Negativ = Gegenwind
+        """
+
+        angle = math.radians(
+            wind_direction - bike_heading
+        )
+
+        return wind_speed * math.cos(angle)
 
     def slope_force(self, slope: float):
         """Hangabtriebskraft - muss zusätzlich überwunden werden 
@@ -90,11 +108,11 @@ class EBike:
 
         return total_force * velocity
 
-    def required_torque(self, velocity: float, slope: float):
+    def required_torque(self, velocity: float, slope: float, wind_speed: float):
         """"
         Formula = τ = F*r 
         """
-        F_air = self.air_drag(velocity)
+        F_air = self.air_drag(velocity, wind_speed)
         F_slope = self.slope_force(slope)
         F_rolling_resistance = self.rolling_resistance(slope)
  
@@ -105,12 +123,12 @@ class EBike:
         return total_force * self.config.wheel_diameter/2 * conversion_factor_inch_to_m
 
 
-    def step(self, velocity: float, slope: float, dt: float):
+    def step(self, velocity: float, slope: float, dt: float, bike_heading: float, wind_direction: float, wind_speed: float) -> StepResult:
         """
         One time step in simulation
         """
-
-        torque = self.required_torque(velocity, slope)
+        rel_wind_speed = self.wind_component(bike_heading, wind_direction, wind_speed)
+        torque = self.required_torque(velocity, slope, rel_wind_speed)
         omega = self.wheel_omega(velocity)
 
         # mechanische Leistung
