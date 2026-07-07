@@ -5,10 +5,20 @@ from src.models.battery import BatteryBase
 
 @dataclass
 class EBikeConfig:
-    mass: float                 # Gesamtmasse (Bike + Fahrer) in kg
-    wheel_diameter: float        # in inch
-    c_w_a: float               # Luftwiderstandsfläche
+    mass: float
+    wheel_diameter: float
+    c_w_a: float
 
+    def __post_init__(self):
+        # Plausibilitätsprüfungen direkt nach der Initialisierung
+        if self.mass <= 0:
+            raise ValueError(f"Ungültige Masse: {self.mass} kg. Die Gesamtmasse muss größer als 0 sein.")
+        
+        if self.wheel_diameter <= 0:
+            raise ValueError(f"Ungültiger Raddurchmesser: {self.wheel_diameter} inch. Muss größer als 0 sein.")
+        
+        if self.c_w_a < 0:
+            raise ValueError(f"Ungültiger Luftwiderstandsbeiwert: {self.c_w_a}. Darf nicht negativ sein.")
 @dataclass
 class StepResult:
     torque: float
