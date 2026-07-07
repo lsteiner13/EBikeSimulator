@@ -7,6 +7,7 @@ from src.models.motor import Motor
 from src.models.battery import LiPo, NMC
 from src.physics.route_analyzer import RouteAnalyzer
 from src.simulator.simulator import Simulator
+from tools.plotter import Plotter
 
 # Logging Basis-Konfiguration
 logging.basicConfig(
@@ -75,5 +76,13 @@ except Exception as e:
     # Fängt Abstürze ab, falls in der ausgelagerten Simulator-Klasse etwas schiefgeht
     logging.critical(f"Kritischer Fehler während der Simulation: {e}")
     sys.exit(1)
+
+#simulate with ebike lipo and nmc
+result_lipo = simulator.run(ebike_lipo)
+result_nmc = simulator.run(ebike_nmc)
+
+Plotter.plot_speed(result_lipo.time, result_lipo.speed)
+Plotter.plot_power(result_lipo.time, result_lipo.power)
+Plotter.plot_soc(result_lipo.time, result_lipo.soc)
 
 logging.info("Alle Prozesse fehlerfrei beendet.")
