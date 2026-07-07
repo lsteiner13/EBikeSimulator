@@ -1,12 +1,14 @@
 import logging
 import sys
 from src.data_io.csv_loader import load_csv
+from src.data_io.gpx_loader import load_gpx
 from pathlib import Path
 from src.models.bike import EBike, EBikeConfig
 from src.models.motor import Motor
 from src.models.battery import LiPo, NMC
 from src.physics.route_analyzer import RouteAnalyzer
 from src.simulator.simulator import Simulator
+from tools.plot_gps_data import FoliumMap
 from tools.plotter import Plotter
 
 # Logging Basis-Konfiguration
@@ -81,6 +83,7 @@ except Exception as e:
 result_lipo = simulator.run(ebike_lipo)
 result_nmc = simulator.run(ebike_nmc)
 
+FoliumMap.plot_route(route)
 Plotter.plot_speed(result_lipo.time, result_lipo.speed)
 Plotter.plot_power(result_lipo.time, result_lipo.power)
 Plotter.plot_soc(result_lipo.time, result_lipo.soc)
