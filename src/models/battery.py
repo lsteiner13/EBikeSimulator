@@ -4,12 +4,13 @@ from scipy.interpolate import interp1d
 
 class BatteryBase(ABC):
     @abstractmethod
-    def __init__(self, capacity_nom_Ah: float, initial_soc: float = 1.0):
+    def __init__(self, capacity_nom_Ah: float, initial_soc: float = 1.0, initial_temperature: float = 20.0):
         self.C_nom = capacity_nom_Ah * 3600.0  # Kapazität in As
         self.soc = initial_soc
         self.R_int = 0.08
         self.Vmin = 32.0
         self.Vmax = 42.0
+        self.temperature = initial_temperature
 
     @abstractmethod
     def apply_current(self, current: float, duration: float) -> None:
@@ -17,6 +18,10 @@ class BatteryBase(ABC):
 
     @abstractmethod
     def voltage(self, current: float = 0.0) -> float:
+        pass
+
+    @abstractmethod
+    def update_temperature(self, current: float, ambient_temperature: float, dt: float) -> None:
         pass
 
 class BatteryPack(BatteryBase):
@@ -34,18 +39,21 @@ class BatteryPack(BatteryBase):
         initial_soc: float = 1.0,
         Vmin: float = 3.0,
         Vmax: float = 4.2,
+        initial_temperature: float = 20
     ):
         self.capacity_nom_As = capacity_nom_Ah*3600
         self.internal_resistance_Ohm = internal_resistance_mOhm/1000
         self.soc = initial_soc
         self.Vmin = Vmin
         self.Vmax = Vmax
+        self.temperature = initial_temperature
         
 
     def apply_current(self, current: float, duration: float) -> None:
         """Modify the SoC based on the applied current & duration"""
-        self.soc = max(0, min(1, self.soc - (current * duration) / self.capacity_nom_As))
-
+        usable_capacity = self.capacity_nom_As * self.capacity_factor()
+        self.soc = max(0, min(1, self.soc - (current * duration) / usable_capacity))
+        
     def is_empty(self) -> bool:
         return self.soc <= 0.0
 
@@ -54,7 +62,60 @@ class BatteryPack(BatteryBase):
 
     def voltage(self, current: float = 0.0) -> float:
         """Return the current voltage of the battery at the SoC and the given current flow"""
-        return self.Vmin + max(0, self.soc*(self.Vmax-self.Vmin) - self.internal_resistance_Ohm*current)
+        r = self.internal_resistance_Ohm * self.resistance_factor()
+        return self.Vmin + max(0, self.soc*(self.Vmax-self.Vmin) - r*current)
+    
+    def update_temperature(self, current: float, ambient_temperature: float, dt: float) -> None:
+        k_heat = 0.002
+        k_cooling = 0.01
+
+        heating = k_heat * current**2
+
+        cooling = k_cooling * (self.temperature - ambient_temperature)
+
+        self.temperature += (heating - cooling) * dt
+
+    def resistance_factor(self):
+        """
+        Change internal resistance according to battery temp -> lower battery temp higher internal resistance
+        """
+        T = self.temperature
+
+        if T < 0:
+            return 2.0
+
+        elif T < 10:
+            return 1.5
+
+        elif T < 25:
+            return 1.2
+
+        elif T < 45:
+            return 1.0
+
+        elif T < 60:
+            return 1.1
+
+        else:
+            return 1.3
+        
+    def capacity_factor(self):
+        """
+        Change capacity according to battery temp -> lower battery temp lower capacity
+        """
+        T = self.temperature
+
+        if T >= 25:
+            return 1.0
+
+        elif T >= 0:
+            return 0.85 + 0.15 * T / 25
+
+        elif T >= -20:
+            return 0.5 + 0.35 * (T + 20) / 20
+
+        return 0.5
+        
 
     def __str__(self):
         return f"BatteryPack(SoC={self.soc * 100:.1f}%, V={self.voltage():.2f} V)"
@@ -76,13 +137,7 @@ class LiPo(BatteryPack):
     use ocv curve to get more accurate results
     """
 
-    def __init__(
-        self,
-        capacity_cell_Ah: float,
-        s_parallel: int = 1,
-        internal_resistance_cell_mOhm: float = 8.0,
-        initial_soc: float = 1.0,
-    ):
+    def __init__(self, capacity_cell_Ah: float, s_parallel: int = 1, internal_resistance_cell_mOhm: float = 8.0, initial_soc: float = 1.0, initial_temperature: float = 20):
         self.s_series = 10
         self.s_parallel = s_parallel
 
@@ -96,6 +151,7 @@ class LiPo(BatteryPack):
             initial_soc=initial_soc,
             Vmin=self.s_series * 3.2,
             Vmax=self.s_series * 4.2,
+            initial_temperature = initial_temperature
         )
 
         # OCV-Kennlinie
@@ -142,6 +198,7 @@ class NMC(BatteryPack):
         s_parallel: int = 1,
         internal_resistance_cell_mOhm: float = 7.0,
         initial_soc: float = 1.0,
+        initial_temperature: float = 20,
     ):
         self.s_series = 10
         self.s_parallel = s_parallel
@@ -156,6 +213,7 @@ class NMC(BatteryPack):
             initial_soc=initial_soc,
             Vmin=self.s_series * 3.2,
             Vmax=self.s_series * 4.2,
+            initial_temperature=initial_temperature,
         )
 
         # OCV-Kennlinie
