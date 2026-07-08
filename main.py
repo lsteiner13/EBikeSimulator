@@ -41,8 +41,8 @@ try:
     motor = Motor(efficiency=0.85, torque_constant=1.5)
     
     # init batterys
-    lipo = LiPo(capacity_cell_Ah=10, s_parallel=4, initial_soc=1)
-    nmc = NMC(capacity_cell_Ah=10, s_parallel=4, initial_soc=1)
+    lipo = LiPo(capacity_cell_Ah=4, s_parallel=5, initial_soc=1, initial_temperature=route.points[0].temperature)
+    nmc = NMC(capacity_cell_Ah=4, s_parallel=5, initial_soc=1, initial_temperature=route.points[0].temperature)
     
     ebike_config = EBikeConfig(mass=80, wheel_diameter=27, c_w_a=0.5626, rolling_resistance=0.006)
     
@@ -79,7 +79,7 @@ except Exception as e:
     sys.exit(1)
 
 
-
+print(result_lipo.battery_temp)
 #FoliumMap.plot_route(route)
 
 #Plotter.plot_speed(result_lipo.time, result_lipo.speed)

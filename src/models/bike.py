@@ -34,6 +34,7 @@ class StepResult:
     current: float
     voltage: float
     soc: float
+    battery_temp: float
 
 
 class EBike:
@@ -123,7 +124,7 @@ class EBike:
         return total_force * self.config.wheel_diameter/2 * conversion_factor_inch_to_m
 
 
-    def step(self, velocity: float, slope: float, dt: float, bike_heading: float, wind_direction: float, wind_speed: float) -> StepResult:
+    def step(self, velocity: float, slope: float, dt: float, bike_heading: float, wind_direction: float, wind_speed: float, ambient_temperature: float) -> StepResult:
         """
         One time step in simulation
         """
@@ -140,6 +141,9 @@ class EBike:
         # Akku entladen
         self.battery.apply_current(current, dt)
 
+        # Akku Temperaturänderung berechnen
+        self.battery.update_temperature(current, ambient_temperature, dt)
+
         return StepResult(
             torque=torque,
             omega=omega,
@@ -147,4 +151,5 @@ class EBike:
             current=current,
             voltage=self.battery.voltage(current),
             soc=self.battery.soc,
+            battery_temp=self.battery.temperature,
 )
