@@ -174,7 +174,9 @@ class RouteAnalyzer:
             'max_acceleration_mps2': max_accel,
             'total_ascent_m': self.total_ascent(),
             'total_descent_m': self.total_descent(),
-            'max_gradient_percent': max_gradient
+            'max_gradient_percent': max_gradient,
+            'start_time': self.points[0].time, 
+            'end_time': self.points[-1].time
         }
     
     @staticmethod

@@ -18,7 +18,7 @@ class FoliumMap:
 
         m = folium.Map(
             location=[start.lat, start.lon],
-            zoom_start=13,
+            zoom_start=12,
             tiles=None
         )
 
@@ -60,8 +60,6 @@ class FoliumMap:
 
         output = Path(output_file)
         m.save(output)
-
-        print(f"Map saved to {output.resolve()}")
 
         if open_browser:
             webbrowser.open(output.resolve().as_uri())

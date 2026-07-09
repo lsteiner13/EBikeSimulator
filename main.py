@@ -9,6 +9,27 @@ from src.physics.route_analyzer import RouteAnalyzer
 from src.simulator.simulator import Simulator
 from tools.plot_gps_data import FoliumMap
 from tools.plotter import Plotter
+import argparse
+
+# Parser erstellen
+parser = argparse.ArgumentParser(description="EBike Simulatoins Software")
+
+# Optional route file
+parser.add_argument("--route_file", type=str, default=str(Path(__file__).resolve().parents[0] / "data" / "final_project_input_data.csv"), help="Pfad zur Routendatei (Standard /data/final_project_input_data.csv)")
+
+# Optional soc
+parser.add_argument("--soc", type=float, default=1, help="Start-Akkustand in Flieskomma 0-1 (Standard: 1)")
+
+# Optional weight
+parser.add_argument("--weight", type=float, default=85, help="Gewicht in kg (Standard 85kg)")
+
+# Argumente parsen
+args = parser.parse_args()
+
+# Zugriff auf die Werte
+route_path = args.route_file
+start_soc = args.soc
+start_weight = args.weight
 
 # Logging Basis-Konfiguration
 logging.basicConfig(
@@ -18,7 +39,7 @@ logging.basicConfig(
 )
 
 # Pfad zur Datendatei
-data_path = Path(__file__).resolve().parents[0] / "data" / "final_project_input_data.csv"
+data_path = Path(route_path)
 
 if not data_path.exists():
     logging.critical(f"Daten-Datei nicht gefunden: {data_path}")
@@ -41,10 +62,10 @@ try:
     motor = Motor(efficiency=0.85, torque_constant=1.5)
     
     # init batterys
-    lipo = LiPo(capacity_cell_Ah=4, s_parallel=5, initial_soc=1, initial_temperature=route.points[0].temperature)
-    nmc = NMC(capacity_cell_Ah=4, s_parallel=5, initial_soc=1, initial_temperature=route.points[0].temperature)
+    lipo = LiPo(capacity_cell_Ah=4, s_parallel=5, initial_soc=start_soc, initial_temperature=route.points[0].temperature)
+    nmc = NMC(capacity_cell_Ah=4, s_parallel=5, initial_soc=start_soc, initial_temperature=route.points[0].temperature)
     
-    ebike_config = EBikeConfig(mass=80, wheel_diameter=27, c_w_a=0.5626, rolling_resistance=0.006)
+    ebike_config = EBikeConfig(mass=start_weight, wheel_diameter=27, c_w_a=0.5626, rolling_resistance=0.006)
     
     # init ebike versions
     ebike_lipo = EBike(motor=motor, battery=lipo, config=ebike_config)
@@ -78,12 +99,15 @@ except Exception as e:
     logging.critical(f"Kritischer Fehler während der Simulation: {e}")
     sys.exit(1)
 
+#Plots
+route_name = data_path.stem
+projekt_ordner = Path(__file__).resolve().parents[0]
+output_ordner = projekt_ordner / "output"
+output_filename = output_ordner / route_name
+str_output_filename = str(output_filename)
 
-print(result_lipo.battery_temp)
-#FoliumMap.plot_route(route)
-
-#Plotter.plot_speed(result_lipo.time, result_lipo.speed)
-#Plotter.plot_power(result_lipo.time, result_lipo.power)
-Plotter.plot_soc(result_lipo.time, result_lipo.soc)
+Plotter.plot_all(result_lipo, route_name + "_lipo")
+Plotter.plot_all(result_nmc, route_name + "_nmc")
+FoliumMap.plot_route(route, output_file=str_output_filename + "_map.html", open_browser=False)
 
 logging.info("Alle Prozesse fehlerfrei beendet.")

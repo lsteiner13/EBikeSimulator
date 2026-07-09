@@ -64,3 +64,32 @@ class Simulator:
             result.battery_temp.append(state.battery_temp)
 
         return result
+    
+    def get_summary(self, result: SimulationResult) -> dict:
+        #retunrs summary of route + bike
+
+        """Gibt eine vollständige zusammenfassende Statistik der Route + Bike zurück"""
+        route_stats = self.analyzer.get_summary()
+        soc_start = result.soc[0]
+        soc_ende = result.soc[-1]
+
+        battery_v_start = result.voltage[0]
+        battery_v_ende = result.voltage[-1]
+
+        battery_temp_start = result.battery_temp[0]
+        battery_temp_ende = result.battery_temp[-1]
+
+        highest_power = max(result.power)
+        highest_battery_temp = max(result.battery_temp)
+
+        bike_stats = {'soc_start': soc_start,
+                     'soc_ende': soc_ende,
+                     'battery_v_start': battery_v_start,
+                     'battery_v_ende': battery_v_ende,
+                     'battery_temp_start': battery_temp_start,
+                     'battery_temp_ende': battery_temp_ende,
+                     'highest_power': highest_power,
+                     'highest_battery_temp': highest_battery_temp
+        }
+
+        return route_stats | bike_stats
