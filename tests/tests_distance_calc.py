@@ -53,6 +53,16 @@ class TestRouteAnalyzer(unittest.TestCase):
         self.assertIn('total_descent_m', summary)
         self.assertIn('total_duration_s', summary)
         self.assertTrue(summary['total_duration_s'] > 0)
+    
+    def test_invalid_gps_coordinates(self):
+        from datetime import datetime
+        
+        #Test ungültiger Breitengrad 
+        bad_p1 = RoutePoint(lat=100.0, lon=11.3933, elevation=574, time=datetime.now())
+        
+        #es wird gerpürft ob das den Fehler wirft
+        with self.assertRaises(ValueError):
+            Route([bad_p1])
 
 if __name__ == '__main__':
     unittest.main()

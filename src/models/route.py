@@ -34,3 +34,5 @@ class Route:
 
     def __str__(self):
         return f"Route mit {len(self.points)} validierten Punkten"
+    
+    
