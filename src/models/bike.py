@@ -47,20 +47,32 @@ class EBike:
         self.motor = motor
         self.battery = battery
         self.config = config
+    
+    def _calculate_air_density(self, elevation: float, temperature_c: float) -> float:
+        """Berechnet die Luftdichte abhängig von Höhe und Temperatur (Barometrische Höhenformel)."""
+        if elevation is None: elevation = 0.0
+        if temperature_c is None: temperature_c = 15.0
 
-    def air_drag(self, velocity: float, wind_speed: float) -> float:
-        """formel
-        Fw = 1/2 * luftdichte * cw * A * v²
-        c_w_a -> cw * A
-        nehme standart wert für luftdichte
-        luftdichte auf meeres höhe bei 15° ~ 1,225kg / m³
-        berücksichtige wind -> berechne relative geschwindigkeit
-        wind_speed wird bereits korrekt übergeben 
-        + -> rückenwind
-        - -> gegenwind"""
-        air_density = 1.225
+        # Temperatur in Kelvin
+        t_k = temperature_c + 273.15
+        
+        # Luftdruck p auf Höhe h (in Pascal)
+        p = 101325 * (1 - 2.25577e-5 * elevation)**5.25588
+        
+        # Spezifische Gaskonstante für trockene Luft
+        R = 287.05
+        
+        # Dichte berechnen
+        return p / (R * t_k)
+
+    def air_drag(self, velocity: float, wind_speed: float, elevation: float = 0.0, ambient_temperature: float = 15.0) -> float:
+        """Berechnet den Luftwiderstand unter Berücksichtigung von Wind, Höhe und Temperatur."""
+        # Dynamische Luftdichte berechnen
+        air_density = self._calculate_air_density(elevation, ambient_temperature)
+        
         rel_speed = velocity - wind_speed
-
+        
+        # F_w = 0.5 * rho * c_w_A * v_rel^2
         return 0.5 * air_density * self.config.c_w_a * rel_speed**2
     
     def wind_component(self, bike_heading, wind_direction, wind_speed):
@@ -96,12 +108,12 @@ class EBike:
         
         return self.config.rolling_resistance * self.config.mass * 9.81 * math.cos(alpha)
         
-    def required_power(self, velocity: float, slope: float):
+    def required_power(self, velocity: float, slope: float, elevation: float = 0.0, ambient_temperature: float = 15.0):
         """
         Total power on wheel
         Formula = P = F * v
         """
-        F_air = self.air_drag(velocity, 0.0)
+        F_air = self.air_drag(velocity, 0.0, elevation, ambient_temperature)
         F_slope = self.slope_force(slope)
         F_rolling_resistance = self.rolling_resistance(slope)
 
@@ -109,11 +121,11 @@ class EBike:
 
         return total_force * velocity
 
-    def required_torque(self, velocity: float, slope: float, wind_speed: float):
+    def required_torque(self, velocity: float, slope: float, wind_speed: float, elevation: float, ambient_temperature: float):
         """"
         Formula = τ = F*r 
         """
-        F_air = self.air_drag(velocity, wind_speed)
+        F_air = self.air_drag(velocity, wind_speed, elevation, ambient_temperature)
         F_slope = self.slope_force(slope)
         F_rolling_resistance = self.rolling_resistance(slope)
  
@@ -124,12 +136,12 @@ class EBike:
         return total_force * self.config.wheel_diameter/2 * conversion_factor_inch_to_m
 
 
-    def step(self, velocity: float, slope: float, dt: float, bike_heading: float, wind_direction: float, wind_speed: float, ambient_temperature: float) -> StepResult:
+    def step(self, velocity: float, slope: float, dt: float, bike_heading: float, wind_direction: float, wind_speed: float, ambient_temperature: float, elevation: float) -> StepResult:
         """
         One time step in simulation
         """
         rel_wind_speed = self.wind_component(bike_heading, wind_direction, wind_speed)
-        torque = self.required_torque(velocity, slope, rel_wind_speed)
+        torque = self.required_torque(velocity, slope, rel_wind_speed, elevation, ambient_temperature)
         omega = self.wheel_omega(velocity)
 
         # mechanische Leistung
