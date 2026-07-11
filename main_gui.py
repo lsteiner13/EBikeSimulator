@@ -17,6 +17,7 @@ from src.physics.route_analyzer import RouteAnalyzer
 from src.simulator.simulator import Simulator
 from tools.plot_gps_data import FoliumMap
 from tools.plotter import Plotter
+from src.data_io.report_generator import ReportGenerator
 
 
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
@@ -81,8 +82,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.simulator = Simulator(self.route)
             self.statusbar.showMessage("Erfolgreich simuliert.", 3000)
             self.results = self.simulator.run(self.ebike)
-        except:
-            self.statusbar.showMessage("Fehler in  Simulation.", 3000)
+        except Exception as e:
+            self.statusbar.showMessage("Fehler in Simulation.", 3000)
+            import traceback
+            traceback.print_exc()
 
         #erstelle plots
         projekt_ordner = Path(__file__).resolve().parents[0]
@@ -135,7 +138,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.listWidget_soc.addItem(str(soc))
             self.listWidget_speed.addItem(str(speed))
             self.listWidget_time.addItem(str(time))
-            self.listWidget_voltage.addItem(str(voltage))     
+            self.listWidget_voltage.addItem(str(voltage)) 
+            
+       
 
         #summary page
         #get summary data of route and bike
@@ -187,6 +192,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         #soc start und ende
         self.text_socstart.setText(f"{(stats['soc_start'] * 100):.0f} %")
         self.text_socend.setText(f"{(stats['soc_ende'] * 100):.0f} %")
+        
+         # Text-Report generieren und speichern
+        report_pfad = str(output_ordner / f"{self.route_name}_report.txt")
+        ReportGenerator.generate_txt_report(report_pfad, stats)    
 
     
 if __name__ == "__main__":

@@ -49,7 +49,8 @@ class Simulator:
                 - self.route.points[i].time
             ).total_seconds()
 
-            state = bike.step(speed, slope, dt, bike_heading, wind_direction, wind_speed, ambient_temperature)
+            current_elevation = self.route.points[i].elevation
+            state = bike.step(speed, slope, dt, bike_heading, wind_direction, wind_speed, ambient_temperature, current_elevation)
 
             result.time.append(self.route.points[i].time)
 
