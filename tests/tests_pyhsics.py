@@ -15,7 +15,7 @@ class TestPhysics(unittest.TestCase):
     def setUp(self):
         self.motor = Motor(efficiency=0.85, torque_constant=1.5)
         self.battery = LiPo(capacity_cell_Ah=10, s_parallel=4, initial_soc=1.0)
-        self.config = EBikeConfig(mass=80, wheel_diameter=27, c_w_a=0.5626)
+        self.config = EBikeConfig(mass=80, wheel_diameter=27, c_w_a=0.5626, rolling_resistance=0.005)
         self.ebike = EBike(motor=self.motor, battery=self.battery, config=self.config)
 
     def test_leistung(self):

@@ -101,7 +101,7 @@ class EBike:
         Total power on wheel
         Formula = P = F * v
         """
-        F_air = self.air_drag(velocity)
+        F_air = self.air_drag(velocity, 0.0)
         F_slope = self.slope_force(slope)
         F_rolling_resistance = self.rolling_resistance(slope)
 
