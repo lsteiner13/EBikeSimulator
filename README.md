@@ -310,7 +310,11 @@ J --> K[Simulation beendet]
 
 # Tests
 
-add me 
+Das Projekt enthält Unit- und Integrationstests, um die physikalischen Berechnungen (Motor, Batterie) und den Ablauf der Simulation abzusichern.
+
+Die Tests können im Terminal aus dem Hauptverzeichnis gestartet werden:
+```bash
+python -m unittest discover tests/
 
 # Ergebnisse
 
