@@ -315,6 +315,7 @@ Das Projekt enthält Unit- und Integrationstests, um die physikalischen Berechnu
 Die Tests können im Terminal aus dem Hauptverzeichnis gestartet werden:
 ```bash
 python -m unittest discover tests/
+````
 
 # Ergebnisse
 
