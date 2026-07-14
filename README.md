@@ -44,13 +44,13 @@ Aktivieren:
 **Windows**
 
 ```bash
-venv\Scripts\activate
+.venv\Scripts\activate
 ```
 
 **Linux/macOS**
 
 ```bash
-source venv/bin/activate
+source .venv/bin/activate
 ```
 
 ### Abhängigkeiten installieren
