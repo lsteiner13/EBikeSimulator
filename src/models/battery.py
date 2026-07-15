@@ -66,14 +66,16 @@ class BatteryPack(BatteryBase):
         return self.Vmin + max(0, self.soc*(self.Vmax-self.Vmin) - r*current)
     
     def update_temperature(self, current: float, ambient_temperature: float, dt: float) -> None:
-        k_heat = 0.002
-        k_cooling = 0.01
+        k_heat = 0.00001  
+        k_cooling = 0.0001 
 
         heating = k_heat * current**2
-
         cooling = k_cooling * (self.temperature - ambient_temperature)
 
         self.temperature += (heating - cooling) * dt
+
+        if current == 0.0 and self.temperature < ambient_temperature:
+            self.temperature = ambient_temperature
 
     def resistance_factor(self):
         """
