@@ -3,6 +3,7 @@
 Ein Python-basierter Simulator zur Modellierung und Analyse eines Elektrofahrrads unter verschiedenen Fahrbedingungen.
 
 Das Projekt simuliert das Verhalten eines E-Bikes auf einer vorgegebenen Strecke und berücksichtigt dabei unter anderem Route, Geschwindigkeit, Gewicht, Motorcharakteristik und unterschiedliche Akkumodelle.
+(Die genaue Erklärung der Zusatzfunktionen und des Projektes kann in der Dokumentation gefunden werden)
 
 ## Features
 
