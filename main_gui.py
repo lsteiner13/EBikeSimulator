@@ -195,7 +195,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         
          # Text-Report generieren und speichern
         report_pfad = str(output_ordner / f"{self.route_name}_report.txt")
-        ReportGenerator.generate_txt_report(report_pfad, stats)    
+        ReportGenerator.generate_txt_report(report_pfad, stats)  
+         # PDF-Report generieren und speichern
+        pdf_pfad = str(output_ordner / f"{self.route_name}_report.pdf")
+        ReportGenerator.generate_pdf_report(pdf_pfad, stats)  
 
     
 if __name__ == "__main__":
