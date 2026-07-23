@@ -79,7 +79,7 @@ python main.py
 | `--route_file` | String | `data/final_project_input_data.csv` | Pfad zur CSV-Datei mit den Routendaten |
 | `--soc`        | Float  | `1.0`                               | Start-Ladezustand des Akkus (0 bis 1)  |
 | `--weight`     | Float  | `85`                                | Gesamtgewicht des Systems in kg        |
-| `--rpower`     | Float  | `50`                                | Leistund die Fahrer tritt              |
+| `--rpower`     | Float  | `50`                                | Leistung die Fahrer tritt              |
 
 ## Beispiele
 
