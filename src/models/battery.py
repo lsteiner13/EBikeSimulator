@@ -65,17 +65,31 @@ class BatteryPack(BatteryBase):
         r = self.internal_resistance_Ohm * self.resistance_factor()
         return self.Vmin + max(0, self.soc*(self.Vmax-self.Vmin) - r*current)
     
-    def update_temperature(self, current: float, ambient_temperature: float, dt: float) -> None:
-        k_heat = 0.00001  
-        k_cooling = 0.0001 
+    def update_temperature(
+        self,
+        current: float,
+        ambient_temperature: float,
+        dt: float
+    ):
+        
+        heat_capacity = 3500       # J/K
+        internal_resistance = self.internal_resistance_Ohm # Ohm
+        cooling_factor = 0.5       # W/K
 
-        heating = k_heat * current**2
-        cooling = k_cooling * (self.temperature - ambient_temperature)
+        # Verlustwärme
+        heat_power = current**2 * internal_resistance
 
-        self.temperature += (heating - cooling) * dt
+        # Wärmeverlust an Umgebung
+        cooling_power = (
+            cooling_factor *
+            (self.temperature - ambient_temperature)
+        )
 
-        if current == 0.0 and self.temperature < ambient_temperature:
-            self.temperature = ambient_temperature
+        net_power = heat_power - cooling_power
+
+        self.temperature += (
+            net_power / heat_capacity
+        ) * dt
 
     def resistance_factor(self):
         """

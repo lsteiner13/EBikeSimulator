@@ -53,7 +53,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.battery = LiPo(self.doubleSpinBox_cell_capacity.value(), self.spinBox_cell_para.value(), initial_soc=self.doubleSpinBox_initial_soc.value())
         
         self.ebike_config = EBikeConfig(mass=self.doubleSpinBox_bikeweight.value(), wheel_diameter=self.spinBox_wheel_diameter.value(), c_w_a=self.doubleSpinBox_cwA.value(), rolling_resistance=self.doubleSpinBox_rolling_resistance.value())
-        self.ebike = EBike(self.motor, self.battery, self.ebike_config)
+        self.ebike = EBike(self.motor, self.battery, self.ebike_config, self.spinBox_rider_power.value())
         self.statusbar.showMessage("Konfiguration erfolgreich geladen", 3000)
 
     def loadfile(self):

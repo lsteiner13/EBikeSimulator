@@ -21,6 +21,7 @@ class SimulationResult:
         self.soc = []
 
         self.battery_temp = []
+        self.distance = []
 
 class Simulator:
 
@@ -34,6 +35,7 @@ class Simulator:
 
         speeds = self.analyzer.get_speeds()
         elevation = self.analyzer.get_elevation_data()
+        total_distance = 0.0
 
         for i in range(len(speeds)):
 
@@ -43,14 +45,18 @@ class Simulator:
             wind_direction = self.route.points[i].wind_direction
             wind_speed = self.route.points[i].wind_speed
             ambient_temperature = self.route.points[i].temperature
+            
 
             dt = (
                 self.route.points[i + 1].time
                 - self.route.points[i].time
             ).total_seconds()
 
+
             current_elevation = self.route.points[i].elevation
             state = bike.step(speed, slope, dt, bike_heading, wind_direction, wind_speed, ambient_temperature, current_elevation)
+
+            total_distance += state.distance / 1000.0
 
             result.time.append(self.route.points[i].time)
 
@@ -63,6 +69,7 @@ class Simulator:
             result.soc.append(state.soc)
             result.voltage.append(state.voltage)
             result.battery_temp.append(state.battery_temp)
+            result.distance.append(total_distance)
 
         return result
     

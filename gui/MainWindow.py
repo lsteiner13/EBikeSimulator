@@ -148,6 +148,16 @@ class Ui_MainWindow(object):
         self.comboBox_batterytype.addItem("")
         self.comboBox_batterytype.setObjectName(u"comboBox_batterytype")
         self.comboBox_batterytype.setGeometry(QRect(320, 240, 241, 22))
+        self.label_31 = QLabel(self.settings)
+        self.label_31.setObjectName(u"label_31")
+        self.label_31.setGeometry(QRect(10, 150, 221, 16))
+        self.spinBox_rider_power = QSpinBox(self.settings)
+        self.spinBox_rider_power.setObjectName(u"spinBox_rider_power")
+        self.spinBox_rider_power.setGeometry(QRect(10, 170, 231, 22))
+        self.spinBox_rider_power.setMinimum(1)
+        self.spinBox_rider_power.setMaximum(300)
+        self.spinBox_rider_power.setSingleStep(10)
+        self.spinBox_rider_power.setValue(50)
         self.tabWidget.addTab(self.settings, "")
         self.tab_3 = QWidget()
         self.tab_3.setObjectName(u"tab_3")
@@ -369,7 +379,7 @@ class Ui_MainWindow(object):
     # setupUi
 
     def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
+        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"EBike Simulator", None))
         self.label_5.setText(QCoreApplication.translate("MainWindow", u"Initial SoC", None))
         self.label.setText(QCoreApplication.translate("MainWindow", u"Motor efficiency", None))
         self.pushButton_loadSettings.setText(QCoreApplication.translate("MainWindow", u"Set settings", None))
@@ -393,6 +403,8 @@ class Ui_MainWindow(object):
         self.comboBox_batterytype.setItemText(0, QCoreApplication.translate("MainWindow", u"LiPo", None))
         self.comboBox_batterytype.setItemText(1, QCoreApplication.translate("MainWindow", u"NMC", None))
 
+        self.label_31.setText(QCoreApplication.translate("MainWindow", u"Rider power", None))
+        self.spinBox_rider_power.setSuffix(QCoreApplication.translate("MainWindow", u" W", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.settings), QCoreApplication.translate("MainWindow", u"Settings", None))
         self.label_18.setText(QCoreApplication.translate("MainWindow", u"Route start", None))
         self.label_19.setText(QCoreApplication.translate("MainWindow", u"Route end", None))
