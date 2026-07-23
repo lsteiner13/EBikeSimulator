@@ -23,6 +23,9 @@ parser.add_argument("--soc", type=float, default=1, help="Start-Akkustand in Fli
 # Optional weight
 parser.add_argument("--weight", type=float, default=85, help="Gewicht in kg (Standard 85kg)")
 
+#optional rider power
+parser.add_argument("--rpower", type=float, default=50, help="Unterstützung des Fahrers beim Fahren des E-Bike (Standard 50W)")
+
 # Argumente parsen
 args = parser.parse_args()
 
@@ -30,6 +33,7 @@ args = parser.parse_args()
 route_path = args.route_file
 start_soc = args.soc
 start_weight = args.weight
+rider_power = args.rpower
 
 # Logging Basis-Konfiguration
 logging.basicConfig(
@@ -62,14 +66,14 @@ try:
     motor = Motor(efficiency=0.85, torque_constant=1.5)
     
     # init batterys
-    lipo = LiPo(capacity_cell_Ah=4, s_parallel=5, initial_soc=start_soc, initial_temperature=route.points[0].temperature)
-    nmc = NMC(capacity_cell_Ah=4, s_parallel=5, initial_soc=start_soc, initial_temperature=route.points[0].temperature)
+    lipo = LiPo(capacity_cell_Ah=4, s_parallel=4, initial_soc=start_soc, initial_temperature=route.points[0].temperature)
+    nmc = NMC(capacity_cell_Ah=4, s_parallel=4, initial_soc=start_soc, initial_temperature=route.points[0].temperature)
     
     ebike_config = EBikeConfig(mass=start_weight, wheel_diameter=27, c_w_a=0.5626, rolling_resistance=0.006)
     
     # init ebike versions
-    ebike_lipo = EBike(motor=motor, battery=lipo, config=ebike_config)
-    ebike_nmc = EBike(motor=motor, battery=nmc, config=ebike_config)
+    ebike_lipo = EBike(motor=motor, battery=lipo, config=ebike_config, rider_power=rider_power)
+    ebike_nmc = EBike(motor=motor, battery=nmc, config=ebike_config, rider_power=rider_power)
     
     logging.info("Komponenten erfolgreich initialisiert.")
 

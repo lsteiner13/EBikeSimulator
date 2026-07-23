@@ -106,13 +106,20 @@ Simulation mit anderem Gewicht:
 python main.py --weight 100
 ```
 
+Simulation mit anderer Unterstützungsstufe (Leistung die Fahrer tritt)
+
+```bash
+python main.py --bpower 50
+```
+
 Mehrere Parameter kombinieren:
 
 ```bash
 python main.py \
     --route_file data/alpen_route.csv \
     --soc 0.8 \
-    --weight 95
+    --weight 95 \
+    --bpower 50
 ```
 
 ---

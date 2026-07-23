@@ -35,6 +35,7 @@ class StepResult:
     voltage: float
     soc: float
     battery_temp: float
+    distance: float
 
 
 class EBike:
@@ -43,10 +44,11 @@ class EBike:
     include function to calculate 
     """
 
-    def __init__(self, motor: Motor, battery: BatteryBase, config: EBikeConfig):
+    def __init__(self, motor: Motor, battery: BatteryBase, config: EBikeConfig, rider_power:float=50.0):
         self.motor = motor
         self.battery = battery
         self.config = config
+        self.rider_power = rider_power
     
     def _calculate_air_density(self, elevation: float, temperature_c: float) -> float:
         """Berechnet die Luftdichte abhängig von Höhe und Temperatur (Barometrische Höhenformel)."""
@@ -144,11 +146,22 @@ class EBike:
         torque = self.required_torque(velocity, slope, rel_wind_speed, elevation, ambient_temperature)
         omega = self.wheel_omega(velocity)
 
+        distance = velocity * dt
+
         # mechanische Leistung
         mech_power = torque * omega
 
-        # Current
-        current = self.motor.torque_to_current(torque)
+        #fahrerleistung abziehen
+        motor_power = max(0, mech_power - self.rider_power)
+
+        #umrechnen in elektrische leistung
+        electrical_power = motor_power / self.motor.efficiency
+
+        #spanung holen
+        battery_voltage = self.battery.voltage(0)
+
+        #strom berechnen
+        current = electrical_power / battery_voltage
 
         # Akku entladen
         self.battery.apply_current(current, dt)
@@ -164,4 +177,5 @@ class EBike:
             voltage=self.battery.voltage(current),
             soc=self.battery.soc,
             battery_temp=self.battery.temperature,
+            distance=distance
 )
