@@ -79,6 +79,7 @@ python main.py
 | `--route_file` | String | `data/final_project_input_data.csv` | Pfad zur CSV-Datei mit den Routendaten |
 | `--soc`        | Float  | `1.0`                               | Start-Ladezustand des Akkus (0 bis 1)  |
 | `--weight`     | Float  | `85`                                | Gesamtgewicht des Systems in kg        |
+| `--rpower`     | Float  | `50`                                | Leistund die Fahrer tritt              |
 
 ## Beispiele
 
@@ -109,7 +110,7 @@ python main.py --weight 100
 Simulation mit anderer Unterstützungsstufe (Leistung die Fahrer tritt)
 
 ```bash
-python main.py --bpower 50
+python main.py --rpower 50
 ```
 
 Mehrere Parameter kombinieren:
@@ -119,7 +120,7 @@ python main.py \
     --route_file data/alpen_route.csv \
     --soc 0.8 \
     --weight 95 \
-    --bpower 50
+    --rpower 50
 ```
 
 ---
